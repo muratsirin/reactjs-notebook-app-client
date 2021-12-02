@@ -3,6 +3,7 @@ import {Button, Form} from "react-bootstrap";
 import FormGroup from "../FormGroup";
 import FormCard from "../FormCard";
 import {authService} from "../../services/auth";
+import {validateForm} from "../../helpers/form-validation";
 
 function Login() {
     const [user, setUser] = useState({
@@ -10,8 +11,20 @@ function Login() {
         password: ''
     });
 
+    const [errors, setErrors] = useState({
+        email: '',
+        password: ''
+    });
+
     function handleChange(event) {
         const {name, value} = event.target;
+
+        setErrors((prevValue) => {
+            return {
+                ...prevValue,
+                [name]: validateForm(name, value)
+            }
+        });
 
         setUser((prevData) => {
             return {
@@ -22,7 +35,20 @@ function Login() {
     }
 
     function login(event) {
-        authService.login(user)
+        const validationErrors = {};
+
+        Object.keys(user).forEach(name => {
+            const error = validateForm(name, user[name]);
+            if (error && error.length > 0) {
+                validationErrors[name] = error;
+            }
+        });
+
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+        }else {
+            authService.login(user);
+        }
         event.preventDefault();
     }
 
@@ -31,9 +57,9 @@ function Login() {
         return (
             <Form>
                 <FormGroup label={"Email Adresi"} type={"email"} name={'email'} value={user.email}
-                           onChange={handleChange} placeholder={"Email Adresiniz"}/>
+                           onChange={handleChange} placeholder={"Email Adresiniz"} error={errors.email}/>
                 <FormGroup label={"Parola"} type={"password"} name={'password'} value={user.password}
-                           onChange={handleChange} placeholder={"Parolanız"}/>
+                           onChange={handleChange} placeholder={"Parolanız"} error={errors.password}/>
                 <Button onClick={login} className="w-100 text-light" variant="warning" type="submit">
                     Giriş Yap
                 </Button>

@@ -31,6 +31,7 @@ function login(user){
     }).catch(error=>{
         return error;
     });
+
 }
 
 function logout(){
