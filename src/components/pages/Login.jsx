@@ -13,7 +13,8 @@ function Login() {
 
     const [errors, setErrors] = useState({
         email: '',
-        password: ''
+        password: '',
+        invalid: '',
     });
 
     function handleChange(event) {
@@ -22,7 +23,8 @@ function Login() {
         setErrors((prevValue) => {
             return {
                 ...prevValue,
-                [name]: validateForm(name, value)
+                [name]: validateForm(name, value),
+                invalid: ''
             }
         });
 
@@ -47,7 +49,13 @@ function Login() {
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
         }else {
-            authService.login(user);
+            authService.login(user).catch(err =>{
+                if (err.response.data.message.errors){
+                    setErrors({
+                        invalid: 'Email veya parola yanlış',
+                    })
+                }
+            })
         }
         event.preventDefault();
     }
@@ -56,6 +64,7 @@ function Login() {
     function cardBody() {
         return (
             <Form>
+                <span className='text-danger'>{errors.invalid}</span>
                 <FormGroup label={"Email Adresi"} type={"email"} name={'email'} value={user.email}
                            onChange={handleChange} placeholder={"Email Adresiniz"} error={errors.email}/>
                 <FormGroup label={"Parola"} type={"password"} name={'password'} value={user.password}

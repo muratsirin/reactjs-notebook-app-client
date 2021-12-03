@@ -4,37 +4,28 @@ import {BehaviorSubject} from "rxjs";
 const currentUserSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('currentUser')));
 
 function register(user) {
-    api.register(user, {
+    return api.register(user, {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: {'Content-Type': 'application/json'},
         body: user
-    }).then(response => response).then(user=>{
+    }).then(response => response).then(user => {
         localStorage.setItem('currentUser', JSON.stringify(user.data.user));
         currentUserSubject.next(user.data.user);
-
-        return user;
-    }).catch(error=>{
-        return error;
     });
 }
 
-function login(user){
-    api.login(user, {
+function login(user) {
+    return api.login(user, {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: {'Content-Type': 'application/json'},
         body: user
-    }).then(response => response).then(user=>{
-            localStorage.setItem('currentUser', JSON.stringify(user.data.user));
-            currentUserSubject.next(user.data.user);
-
-            return user;
-    }).catch(error=>{
-        return error;
+    }).then(response => response).then(user => {
+        localStorage.setItem('currentUser', JSON.stringify(user.data.user));
+        currentUserSubject.next(user.data.user);
     });
-
 }
 
-function logout(){
+function logout() {
     localStorage.removeItem('currentUser');
     currentUserSubject.next(null);
 }
@@ -44,5 +35,7 @@ export const authService = {
     login,
     logout,
     currentUser: currentUserSubject.asObservable(),
-    get currentUserValue () {return currentUserSubject.value}
+    get currentUserValue() {
+        return currentUserSubject.value
+    }
 }

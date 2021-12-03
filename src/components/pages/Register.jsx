@@ -18,6 +18,7 @@ function Register() {
         lastName: '',
         email: '',
         password: '',
+        hasUser: ''
     })
 
     function handleChange(event) {
@@ -26,7 +27,8 @@ function Register() {
         setErrors((prevValue) => {
             return {
                 ...prevValue,
-                [name]: validateForm(name, value)
+                [name]: validateForm(name, value),
+                hasUser: '',
             }
         });
 
@@ -51,7 +53,13 @@ function Register() {
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
         } else {
-            authService.register(user);
+            authService.register(user).catch(err=>{
+                if (err.response.data.error){
+                    setErrors({
+                        hasUser: 'Bu email adresi kullanılmaktadır'
+                    });
+                }
+            });
         }
 
         console.log(errors)
@@ -61,6 +69,7 @@ function Register() {
     function cardBody() {
         return (
             <Form>
+                <span className='text-danger'>{errors.hasUser}</span>
                 <FormGroup label={"Ad"} type={"text"} name={'firstName'} value={user.firstName} onChange={handleChange}
                            placeholder={"Adınız"} error={errors.firstName}/>
                 <FormGroup label={"Soyad"} type={"text"} name={'lastName'} value={user.lastName} onChange={handleChange}
